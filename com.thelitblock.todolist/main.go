@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -36,7 +37,9 @@ func main() {
 		case "complete":
 			fmt.Println("You chose complete")
 		case "delete":
-			fmt.Println("You chose delete")
+			deleteTask(&loadList)
+		case "save":
+			saveTodoList(loadList)
 		case "quit":
 			fmt.Println("You chose quit")
 		default:
@@ -58,6 +61,7 @@ func printCommands() {
 		"add",
 		"complete",
 		"delete",
+		"save",
 		"quit",
 	}
 	fmt.Println("here are the commands:", commands)
@@ -98,5 +102,31 @@ func listTasks(todoList TodoList) {
 			status = "[x]"
 		}
 		fmt.Printf("%d. %s %s\n", task.ID, status, task.Title)
+	}
+}
+
+func deleteTask(todoList *TodoList) {
+	listTasks(*todoList)
+	idStr := getUserInput("Enter the ID of the task to delete: ")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fmt.Println("Invalid ID. Please enter a number.")
+		return
+	}
+	for i, task := range todoList.Tasks {
+		if task.ID == id {
+			todoList.Tasks = append(todoList.Tasks[:i], todoList.Tasks[i+1:]...)
+			fmt.Println("Task deleted!")
+			return
+		}
+	}
+	fmt.Println("Task not found.")
+}
+
+func saveTodoList(todoList TodoList) {
+	data, _ := json.MarshalIndent(todoList, "", "  ")
+	err := os.WriteFile(file, data, 0644)
+	if err != nil {
+		fmt.Println("Error saving tasks:", err)
 	}
 }
