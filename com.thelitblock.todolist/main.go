@@ -35,13 +35,13 @@ func main() {
 		case "add":
 			addTask(&loadList)
 		case "complete":
-			fmt.Println("You chose complete")
+			markTaskComplete(&loadList)
 		case "delete":
 			deleteTask(&loadList)
 		case "save":
 			saveTodoList(loadList)
 		case "quit":
-			fmt.Println("You chose quit")
+			os.Exit(0)
 		default:
 			fmt.Println("Invalid choice")
 		}
@@ -129,4 +129,22 @@ func saveTodoList(todoList TodoList) {
 	if err != nil {
 		fmt.Println("Error saving tasks:", err)
 	}
+}
+
+func markTaskComplete(todoList *TodoList) {
+	listTasks(*todoList)
+	idStr := getUserInput("Enter the ID of the task to mark as complete: ")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		fmt.Println("Invalid ID. Please enter a number.")
+		return
+	}
+	for i, task := range todoList.Tasks {
+		if task.ID == id {
+			todoList.Tasks[i].Completed = true
+			fmt.Println("Task marked as complete!")
+			return
+		}
+	}
+	fmt.Println("Task not found.")
 }
